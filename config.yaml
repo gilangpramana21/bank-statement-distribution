@@ -1,0 +1,77 @@
+# Bank Statement Distribution System Configuration
+
+# Google Drive Configuration
+google_drive:
+  credentials_file: "credentials/google_drive_credentials.json"
+  bank_groups:
+    - "Organic Bank Statements"
+    - "SAPTA Bank Statements"
+    - "IPM Bank Statements"
+  max_depth: 10
+  rate_limit_per_second: 10
+  rate_limit_threshold: 0.8  # 80%
+
+# Email Configuration
+email:
+  smtp_host: "smtp.gmail.com"
+  smtp_port: 587
+  use_tls: true
+  sender_address: "statements@yourcompany.com"
+  rate_limit_per_minute: 10
+  rate_limit_threshold: 0.8  # 80%
+  max_attachment_size_mb: 25
+
+# Database Configuration
+database:
+  type: "postgresql"
+  host: "localhost"
+  port: 5432
+  database: "bank_statements"
+  # Credentials stored encrypted separately
+
+# Processing Configuration
+processing:
+  batch_size: 100
+  max_split_parts: 10
+  execution_timeout_minutes: 60
+  warning_timeout_minutes: 30
+  max_files_per_batch: 1000
+
+# Retry Configuration
+retry:
+  max_attempts: 3
+  initial_backoff_seconds: 1
+  max_backoff_seconds: 60
+  email_initial_backoff_seconds: 5
+  email_max_backoff_seconds: 20
+
+# Rate Limit Cooldown
+cooldown:
+  normal_pause_seconds: 60
+  quota_exceeded_pause_seconds: 300
+
+# Audit Log Configuration
+audit:
+  retention_months: 24
+  query_timeout_seconds: 5
+
+# Health Check Configuration
+health:
+  port: 8080
+  endpoint: "/health"
+  timeout_seconds: 5
+  failed_delivery_window_hours: 24
+
+# Scheduler Configuration
+scheduler:
+  enabled: true
+  cron_expression: "0 0 1 * *"  # First day of month at 00:00 UTC
+  timezone: "UTC"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  file: "logs/bank_statements.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 10
