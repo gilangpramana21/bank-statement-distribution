@@ -147,7 +147,7 @@ bank-statement-distribution/
 │   └── ...
 ├── tests/                        # Unit tests
 ├── scripts/                      # Utility scripts
-├── .kiro/specs/                  # Requirements & design docs
+├── docs/specs/                   # Requirements & design docs
 ├── main.py                       # Entry point
 ├── config.yaml                   # System configuration
 ├── requirements.txt              # Python dependencies

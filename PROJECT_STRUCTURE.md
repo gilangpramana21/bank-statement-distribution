@@ -6,7 +6,7 @@ Complete overview of the Bank Statement Distribution System project structure.
 
 ```
 bank-statement-distribution/
-├── .kiro/                          # Kiro specification files
+├── docs/                            # Documentation and specifications
 │   └── specs/
 │       └── bank-statement-distribution/
 │           ├── requirements.md     # System requirements
