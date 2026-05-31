@@ -1,294 +1,390 @@
-# Bank Statement Distribution System
+# 🏦 Bank Statement Distribution System
 
-A production-ready automated workflow system for distributing bank statements from Google Drive to financiers via email attachments.
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue.svg)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg)]()
 
-## Features
+> **Automated workflow for distributing bank statements from Google Drive to financiers via email**
 
-- **Automated Discovery**: Automatically scans Google Drive folders for new bank statements
-- **Entity-Based Grouping**: Reorganizes statements from bank-based hierarchy to entity-based grouping
-- **Smart Packaging**: Compresses statements into ZIP archives with automatic splitting for large files
-- **Secure Distribution**: Sends statements as direct email attachments with authorization checks
-- **Fault Tolerance**: Implements retry logic, error recovery, and idempotent processing
-- **Comprehensive Auditing**: Maintains detailed audit logs of all operations
-- **Health Monitoring**: Provides health check endpoint for system monitoring
-- **Scheduled Execution**: Supports both scheduled (monthly) and manual execution
+Replaces a manual 2-4 hour monthly process with a fully automated, secure, and auditable system.
 
-## Architecture
+---
 
-The system consists of the following components:
+## 🎯 Problem Solved
 
-- **Statement Scanner**: Discovers bank statements in Google Drive
-- **Entity Grouper**: Reorganizes files by entity
-- **Package Manager**: Creates and splits ZIP archives
-- **Email Distributor**: Sends packages via email with authorization
-- **Audit Logger**: Maintains comprehensive audit logs
-- **Health Check Service**: Monitors system health
-- **Orchestrator**: Coordinates all components
+### Before (Manual Process - 2-4 hours)
+- ❌ Download statements one by one from Google Drive
+- ❌ Manually regroup files by entity (from bank-based folders)
+- ❌ Manually compress and split files to stay within 25MB email limit
+- ❌ Manually send multiple emails to each financier
+- ❌ Repeat every month
 
-## Requirements
+### After (Automated - Single Command)
+- ✅ **Automatic discovery** from Google Drive
+- ✅ **Automatic regrouping** by entity across all banks
+- ✅ **Automatic compression** and splitting at 25MB
+- ✅ **Automatic email distribution** to authorized financiers
+- ✅ **Scheduled monthly execution** or manual trigger
 
-- Python 3.8+
-- PostgreSQL 12+
+---
+
+## ✨ Key Features
+
+### Core Functionality
+- 🔍 **Automatic Statement Discovery** - Scans Google Drive folders recursively
+- 📊 **Entity-Based Grouping** - Regroups statements by entity (not bank)
+- 📦 **Smart Packaging** - ZIP compression with automatic 25MB splitting
+- 📧 **Email Distribution** - Direct attachments via SMTP with TLS
+- 🔄 **Monthly Automation** - Scheduled execution on 1st of each month
+- 🎯 **Single Trigger** - Manual execution with `python main.py run`
+
+### Security & Compliance
+- 🔐 **AES-256 Encryption** - Secure credential storage
+- 📝 **Comprehensive Audit Logging** - 24-month retention
+- ✅ **File Integrity Validation** - SHA-256 checksums
+- 🔒 **Authorization Control** - Financier-entity mappings
+- 🛡️ **Credential Rotation** - No code changes required
+
+### Reliability & Performance
+- ♻️ **Idempotent Processing** - No duplicate deliveries
+- 🔁 **Automatic Retry Logic** - Exponential backoff for failures
+- 🚦 **Rate Limiting** - API and email throttling
+- 📊 **Batch Processing** - Handles up to 1000 files
+- ⚡ **Connection Pooling** - Optimized database access
+
+### Monitoring & Operations
+- 🏥 **Health Check Endpoint** - HTTP monitoring at `/health`
+- 📊 **Structured JSON Logging** - Easy log analysis
+- 📈 **Execution Summaries** - Statistics and reports
+- 🔍 **Configuration Validation** - Pre-execution checks
+- 🐛 **Error Recovery** - Graceful failure handling
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.9+
+- PostgreSQL 15+
 - Google Drive API credentials
-- SMTP email server access
+- SMTP email account
 
-## Installation
+### Installation
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+# Clone repository
+git clone https://github.com/gilangpramana21/bank-statement-distribution.git
 cd bank-statement-distribution
-```
 
-2. Install dependencies:
-```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your actual values
-```
+# Generate environment file
+bash create_env.sh
 
-4. Configure the system:
-```bash
-# Edit config.yaml with your settings
-```
-
-5. Set up Google Drive credentials:
-```bash
-# Place your Google Drive service account credentials in:
-# credentials/google_drive_credentials.json
-```
-
-6. Initialize the database:
-```bash
+# Initialize database
 python main.py init
+
+# Add sample data (optional)
+python add_sample_data.py
 ```
 
-7. Validate configuration:
+### Configuration
+
+1. **Google Drive API**
+   - Create project in [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable Google Drive API
+   - Download `credentials.json`
+   - Update `config.yaml` with folder IDs
+
+2. **Email SMTP**
+   - Get SMTP credentials (Gmail app password recommended)
+   - Update `.env` with credentials
+   - Update `config.yaml` with SMTP settings
+
+3. **Database**
+   - PostgreSQL should be running
+   - Update `.env` with database credentials
+
+### Usage
+
 ```bash
-python main.py validate-config
-```
-
-## Usage
-
-### Manual Execution
-
-Run the distribution workflow manually:
-
-```bash
-# Run for all entities
+# One-time execution
 python main.py run
 
-# Run for specific entity
-python main.py run --entity SMI
+# Start monthly scheduler
+python main.py schedule
 
-# Run for specific date range
-python main.py run --date 2024-01-01
+# Check system health
+python main.py health
+
+# Test without external services
+python demo_without_db.py
 ```
 
-### Scheduled Execution
+---
 
-Start the scheduler for automated monthly execution:
+## 📁 Project Structure
+
+```
+bank-statement-distribution/
+├── src/                          # Source code
+│   ├── statement_scanner.py     # Google Drive integration
+│   ├── entity_grouper.py        # Entity-based file grouping
+│   ├── package_manager.py       # ZIP packaging & splitting
+│   ├── email_distributor.py     # Email sending with SMTP
+│   ├── orchestrator.py          # Main workflow coordinator
+│   ├── database.py              # Database connection & pooling
+│   ├── models.py                # SQLAlchemy models
+│   ├── security.py              # Encryption & credential management
+│   ├── audit_logger.py          # Audit logging
+│   ├── health_check.py          # Health monitoring
+│   └── ...
+├── tests/                        # Unit tests
+├── scripts/                      # Utility scripts
+├── .kiro/specs/                  # Requirements & design docs
+├── main.py                       # Entry point
+├── config.yaml                   # System configuration
+├── requirements.txt              # Python dependencies
+├── Dockerfile                    # Docker image
+├── docker-compose.yml            # Multi-container setup
+└── README.md                     # This file
+```
+
+---
+
+## 📚 Documentation
+
+- **[START_HERE.md](START_HERE.md)** - Quick navigation guide
+- **[QUICKSTART.md](QUICKSTART.md)** - 10-minute setup guide
+- **[SETUP_COMPLETE.md](SETUP_COMPLETE.md)** - Post-setup instructions
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing instructions
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment
+- **[API.md](API.md)** - API reference
+- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Code organization
+- **[CLIENT_REQUIREMENTS_CHECKLIST.md](CLIENT_REQUIREMENTS_CHECKLIST.md)** - Requirements coverage
+
+---
+
+## 🗄️ Database Schema
+
+### Tables
+- **financiers** - Financier information and contact details
+- **entity_mappings** - Entity-to-financier authorization mappings
+- **statement_files** - Discovered statement files and metadata
+- **delivery_status** - Email delivery tracking and retry state
+- **audit_logs** - Comprehensive audit trail (24-month retention)
+- **execution_summaries** - Monthly execution statistics
+- **processing_state** - Idempotent processing state
+- **system_health** - Health check results and connectivity status
+
+---
+
+## 🔧 Configuration Management
+
+### Adding New Financiers
+
+No code changes required! Simply add to database:
+
+```sql
+-- Add financier
+INSERT INTO financiers (name, email_address, active_status)
+VALUES ('PT Example Company', 'finance@example.com', 'ACTIVE');
+
+-- Add entity mappings
+INSERT INTO entity_mappings (financier_id, entity_name, authorized_date)
+VALUES (1, 'SMI', '2024-01-01'),
+       (1, 'PBS', '2024-01-01');
+```
+
+Or use the provided script:
+```bash
+python add_sample_data.py  # Modify script with your data
+```
+
+---
+
+## 🐳 Docker Deployment
 
 ```bash
-python -m src.scheduler
+# Build and start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
 
-The scheduler will run on the first day of each month at 00:00 UTC (configurable in `config.yaml`).
+Services included:
+- **app** - Main application
+- **scheduler** - Monthly scheduler
+- **health** - Health check endpoint
+- **postgres** - PostgreSQL database
+
+---
+
+## 📊 Monitoring
 
 ### Health Check
-
-Check system health status:
-
-```bash
-python main.py health
-```
-
-Or access the health check endpoint:
-
 ```bash
 curl http://localhost:8080/health
 ```
 
-### Test Connections
-
-Test all system connections:
-
-```bash
-python main.py test-connections
-```
-
-## Configuration
-
-### Environment Variables (.env)
-
-```bash
-# Encryption key for credentials
-ENCRYPTION_KEY=your-encryption-key
-
-# Database credentials
-DB_USER=postgres
-DB_PASSWORD=your-db-password
-
-# Email credentials
-EMAIL_USER=your-email@company.com
-EMAIL_PASSWORD=your-email-password
-
-# Admin emails (comma-separated)
-ADMIN_EMAILS=admin1@company.com,admin2@company.com
-
-# Environment
-ENVIRONMENT=production
-```
-
-### System Configuration (config.yaml)
-
-Key configuration options:
-
-- **Google Drive**: Bank group folders, rate limits, max depth
-- **Email**: SMTP settings, rate limits, attachment size limits
-- **Database**: Connection settings
-- **Processing**: Batch sizes, timeouts, retry settings
-- **Scheduler**: Cron expression, timezone
-
-See `config.yaml` for full configuration options.
-
-## Database Schema
-
-The system uses the following main tables:
-
-- **financiers**: Stores financier information
-- **entity_mappings**: Maps financiers to authorized entities
-- **statement_files**: Tracks discovered statement files
-- **delivery_status**: Tracks delivery status for each file-financier pair
-- **audit_logs**: Comprehensive audit trail
-- **execution_summaries**: Execution summary reports
-- **system_health**: System health status
-
-## Security
-
-- **Credential Encryption**: All credentials encrypted with AES-256
-- **TLS/SSL**: Email sent via TLS-encrypted SMTP
-- **Access Control**: Authorization checks for all deliveries
-- **Audit Logging**: Complete audit trail of all operations
-- **Credential Masking**: Credentials masked in logs and error messages
-
-## Monitoring
-
-### Health Check Endpoint
-
-The system exposes a health check endpoint at `/health` (default port 8080):
-
+Response:
 ```json
 {
   "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00Z",
   "last_execution": "2024-01-01T00:00:00Z",
-  "connectivity": {
-    "google_drive": "connected",
-    "email_server": "connected",
-    "database": "connected"
-  },
-  "deliveries": {
-    "pending": 0,
-    "failed_last_24h": 0
-  }
+  "pending_deliveries": 0,
+  "failed_deliveries": 0,
+  "google_drive": "connected",
+  "email_server": "connected",
+  "database": "connected"
 }
 ```
 
-### Audit Logs
-
-Query audit logs via the database or API:
-
-```python
-from src.audit_logger import AuditLogger
-
-audit = AuditLogger()
-logs = audit.query_logs(
-    start_date=datetime(2024, 1, 1),
-    end_date=datetime(2024, 1, 31),
-    entity_name="SMI"
-)
-```
-
-## Error Handling
-
-The system implements comprehensive error handling:
-
-- **Transient Errors**: Automatic retry with exponential backoff
-- **Permanent Errors**: Logged and skipped
-- **Partial Failures**: Continue processing remaining items
-- **State Persistence**: Resume from last successful operation after restart
-
-## Performance
-
-- **Rate Limiting**: Respects Google Drive API and email server limits
-- **Batch Processing**: Processes files in configurable batches
-- **Timeout Management**: Configurable timeouts with warnings
-- **Resource Cleanup**: Automatic cleanup of temporary files
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Google Drive Authentication Failed**
-   - Check credentials file exists and is valid
-   - Verify service account has access to folders
-
-2. **Email Sending Failed**
-   - Verify SMTP credentials
-   - Check firewall/network settings
-   - Verify TLS/SSL settings
-
-3. **Database Connection Failed**
-   - Check database is running
-   - Verify connection settings
-   - Check credentials
-
 ### Logs
-
-Logs are stored in `logs/bank_statements.log` with rotation.
-
-View logs:
 ```bash
+# Application logs
 tail -f logs/bank_statements.log
+
+# Audit logs (database)
+psql -U postgres -d bank_statements \
+  -c "SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 10;"
 ```
 
-## Development
+---
 
-### Running Tests
+## 🔐 Security
+
+- **Encryption**: AES-256 for all credentials
+- **TLS**: SMTP with STARTTLS or implicit TLS
+- **Audit Trail**: All operations logged with timestamps
+- **File Integrity**: SHA-256 checksums for validation
+- **Authorization**: Financier-entity access control
+- **Credential Rotation**: Database-driven, no code changes
+
+---
+
+## 🧪 Testing
 
 ```bash
+# Test core modules (no external services)
+python demo_without_db.py
+
+# Test database connection
+python -c "from src.database import db; print('✅ Connected!' if db.test_connection() else '❌ Failed')"
+
+# Run unit tests
 pytest tests/
+
+# Test with sample data
+python add_sample_data.py
+python main.py run
 ```
 
-### Code Structure
+---
 
-```
-src/
-├── config.py           # Configuration management
-├── models.py           # Database models
-├── database.py         # Database connection
-├── security.py         # Credential encryption
-├── logger.py           # Logging setup
-├── statement_scanner.py    # Google Drive scanner
-├── entity_grouper.py       # Entity grouping logic
-├── package_manager.py      # ZIP packaging
-├── email_distributor.py    # Email distribution
-├── audit_logger.py         # Audit logging
-├── health_check.py         # Health monitoring
-├── orchestrator.py         # Main orchestrator
-├── cli.py                  # Command-line interface
-└── scheduler.py            # Scheduled execution
+## 🛠️ Troubleshooting
+
+### Database Connection Issues
+```bash
+# Check PostgreSQL status
+brew services list | grep postgresql
+
+# Restart PostgreSQL
+brew services restart postgresql@15
+
+# Test connection
+psql -U postgres -d bank_statements -c "SELECT version();"
 ```
 
-## License
+### Module Import Errors
+```bash
+# Activate virtual environment
+source venv/bin/activate
 
-Copyright © 2024 Your Company. All rights reserved.
+# Reinstall dependencies
+pip install -r requirements.txt
+```
 
-## Support
+### Encryption Key Issues
+```bash
+# Regenerate .env file
+bash create_env.sh
+```
 
-For support, please contact: support@yourcompany.com
+See [TESTING_GUIDE.md](TESTING_GUIDE.md) for more troubleshooting tips.
+
+---
+
+## 📈 System Requirements
+
+### Minimum
+- **CPU**: 2 cores
+- **RAM**: 2 GB
+- **Storage**: 10 GB
+- **Network**: Stable internet connection
+
+### Recommended
+- **CPU**: 4 cores
+- **RAM**: 4 GB
+- **Storage**: 50 GB (for logs and temporary files)
+- **Network**: High-speed internet
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with Python, PostgreSQL, and SQLAlchemy
+- Google Drive API for file discovery
+- SMTP for email distribution
+- Docker for containerization
+
+---
+
+## 📞 Support
+
+For issues, questions, or feature requests:
+- Open an issue on GitHub
+- Check documentation in the `docs/` folder
+- Review logs: `tail -f logs/bank_statements.log`
+
+---
+
+## 🎯 Roadmap
+
+- [ ] Web dashboard for monitoring and configuration
+- [ ] Support for additional cloud storage providers (Dropbox, OneDrive)
+- [ ] Advanced reporting and analytics
+- [ ] Multi-language support
+- [ ] API endpoints for integration
+
+---
+
+**Made with ❤️ for automating financial operations**
