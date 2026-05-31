@@ -379,7 +379,6 @@ For issues, questions, or feature requests:
 
 ## 🎯 Roadmap
 
-- [ ] Web dashboard for monitoring and configuration
 - [ ] Support for additional cloud storage providers (Dropbox, OneDrive)
 - [ ] Advanced reporting and analytics
 - [ ] Multi-language support
